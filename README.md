@@ -1,13 +1,18 @@
-# MedLM — Transformers from Scratch
+# babyGPT — Transformers from Scratch
 
-A from-scratch language modeling project in PyTorch, inspired by [Karpathy's "Let's build GPT" series](https://www.youtube.com/watch?v=kCc8FmEb1nY). Trains on medical flashcard text with a progression from simple bigram models to a full GPT with a byte-level BPE tokenizer.
+A from-scratch language modeling project in PyTorch, inspired by [Karpathy's "Let's build GPT" series](https://www.youtube.com/watch?v=kCc8FmEb1nY). It trains on medical flashcard text and walks through the progression from a simple bigram model up to a full GPT with its own byte-level BPE tokenizer.
 
 ## What this project does
 
-1. **Bigram model** — predicts the next character from only the previous one
-2. **GPT + BPE** — a ~10M-parameter Transformer trained on subword tokens (byte-level BPE, GPT-2 style)
-3. **Custom tokenizer** — BPE trained from scratch on UTF-8 bytes (no HuggingFace tokenizer)
-4. **GPU training pipeline** — train locally or on RunPod / any cloud GPU, with checkpoint saving and a downloadable model bundle
+This repo is split into two stages that build on each other:
+
+1. **Bigram model** (`bigram.py`) — the simplest possible language model. It predicts the next character using only the single character before it, with no attention or context beyond that. This is the baseline everything else improves on.
+2. **GPT + BPE** (`gpt_bpe.py`) — a ~10M-parameter Transformer (GPT-2 style) trained on subword tokens instead of raw characters, using self-attention to condition on up to 256 tokens of context.
+
+Two supporting pieces make the GPT stage work:
+
+- **Custom tokenizer** — byte-level BPE trained from scratch directly on UTF-8 bytes (no HuggingFace tokenizer library involved)
+- **GPU training pipeline** — train locally on CPU/GPU or on RunPod / any cloud GPU, with automatic checkpoint saving and a downloadable model bundle at the end
 
 ## Project structure
 
@@ -133,16 +138,16 @@ Any GPU with **≥16 GB VRAM** is more than enough for this ~10M-parameter model
 ### One-command training
 
 ```bash
-git clone https://github.com/james-yu2005/mini-medical-gpt.git
-cd mini-medical-gpt
+git clone https://github.com/james-yu2005/babyGPT.git
+cd babyGPT
 bash scripts/runpod_train.sh
 ```
 
 Or step by step:
 
 ```bash
-git clone https://github.com/james-yu2005/mini-medical-gpt.git
-cd mini-medical-gpt
+git clone https://github.com/james-yu2005/babyGPT.git
+cd babyGPT
 pip install -r requirements.txt
 python data/load_dataset.py --format pretrain
 python -m tokenizer.train
@@ -161,7 +166,7 @@ Download **`checkpoints/model_bundle.zip`** (contains `gpt_bpe_best.pt` + `bpe.j
 - **SCP from your PC:**
 
 ```powershell
-scp -P PORT -i $env:USERPROFILE\.ssh\id_ed25519 root@POD_IP:/workspace/mini-medical-gpt/checkpoints/model_bundle.zip .
+scp -P PORT -i $env:USERPROFILE\.ssh\id_ed25519 root@POD_IP:/workspace/babyGPT/checkpoints/model_bundle.zip .
 ```
 
 ### Use the model locally
